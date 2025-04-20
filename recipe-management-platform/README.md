@@ -33,6 +33,10 @@ A modern, user-friendly recipe management platform built with React that helps y
 ![Meal Planner Screenshot]
 [Add a screenshot of the meal planner interface]
 
+#### PDF Export Feature
+![Meal Planner PDF Export]
+[Add a screenshot of the exported meal planner PDF]
+
 ### 4. Shopping List
 - Automatic shopping list generation from meal plans
 - Manual item addition
@@ -43,6 +47,10 @@ A modern, user-friendly recipe management platform built with React that helps y
 
 ![Shopping List Screenshot]
 [Add a screenshot of the shopping list feature]
+
+#### PDF Export Feature
+![Shopping List PDF Export]
+[Add a screenshot of the exported shopping list PDF]
 
 ## 🚀 Live Demo
 
@@ -56,7 +64,7 @@ Check out the live application at: [https://recipemanagerx.vercel.app/](https://
 - React Router
 - Context API for state management
 - Vercel for deployment
-- PDF generation with html2pdf.js
+- PDF generation with html2pdf.js for exporting meal plans and shopping lists
 - Axios for API requests
 
 ## ⚙️ Installation and Setup
