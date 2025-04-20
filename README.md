@@ -1,4 +1,4 @@
-# Recipe Manager X
+# Recipe-Manager
 
 A modern, user-friendly recipe management platform built with React that helps you organize recipes, plan meals, and manage shopping lists.
 
