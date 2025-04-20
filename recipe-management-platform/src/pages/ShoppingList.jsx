@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { usePlanner } from '../context/PlannerContext';
 
 export default function ShoppingList() {
@@ -6,7 +6,9 @@ export default function ShoppingList() {
   const [ingredients, setIngredients] = useState({});
   const [newItem, setNewItem] = useState('');
   const [newMeasure, setNewMeasure] = useState('');
+  const [deleteInProgress, setDeleteInProgress] = useState(false);
 
+  // Fetch shopping list on mount and when it changes
   useEffect(() => {
     const list = getShoppingList();
     setIngredients(list);
@@ -22,10 +24,24 @@ export default function ShoppingList() {
     }
   };
 
-  const handleRemoveItem = (ingredient) => {
-    removeFromShoppingList(ingredient);
-    setIngredients(getShoppingList());
-  };
+  const handleRemoveItem = useCallback(async (ingredient) => {
+    if (deleteInProgress) return; // Prevent multiple simultaneous deletions
+    
+    try {
+      setDeleteInProgress(true);
+      const success = removeFromShoppingList(ingredient);
+      
+      if (success) {
+        // Update the local state with the latest shopping list
+        const updatedList = getShoppingList();
+        setIngredients(updatedList);
+      }
+    } catch (error) {
+      console.error('Error removing item:', error);
+    } finally {
+      setDeleteInProgress(false);
+    }
+  }, [deleteInProgress, removeFromShoppingList, getShoppingList]);
 
   return (
     <div className="container mx-auto px-4 py-8 animate-fade-in">
@@ -62,7 +78,7 @@ export default function ShoppingList() {
         <div className="space-y-4 max-h-[60vh] overflow-y-auto">
           {Object.entries(ingredients).map(([ingredient, measures], index) => (
             <div
-              key={ingredient}
+              key={`${ingredient}-${index}`}
               className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-gray-100 hover:border-blue-200 transition-all duration-300 animate-fade-in hover-card"
               style={{ animationDelay: `${index * 50}ms` }}
             >
@@ -71,6 +87,7 @@ export default function ShoppingList() {
                   type="checkbox"
                   onChange={() => handleRemoveItem(ingredient)}
                   className="h-5 w-5 rounded border-gray-300 text-blue-600 transition duration-150 ease-in-out"
+                  disabled={deleteInProgress}
                 />
                 <span className="text-responsive">
                   {ingredient}
@@ -84,6 +101,7 @@ export default function ShoppingList() {
               <button
                 onClick={() => handleRemoveItem(ingredient)}
                 className="text-red-500 hover:text-red-700 transition-colors duration-200"
+                disabled={deleteInProgress}
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform hover:scale-110 transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />

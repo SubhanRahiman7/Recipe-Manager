@@ -141,12 +141,25 @@ export const PlannerProvider = ({ children }) => {
   }
 
   const removeFromShoppingList = (ingredient) => {
-    const normalizedIngredient = normalizeIngredient(ingredient)
-    const newList = { ...shoppingList }
-    delete newList[normalizedIngredient]
-    setShoppingList(newList)
-    localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(newList))
-  }
+    try {
+      const normalizedIngredient = normalizeIngredient(ingredient);
+      const newList = { ...shoppingList };
+      
+      // Delete the ingredient
+      delete newList[normalizedIngredient];
+      
+      // Update state first
+      setShoppingList(newList);
+      
+      // Then update localStorage
+      localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(newList));
+      
+      return true; // Return success status
+    } catch (error) {
+      console.error('Error removing item from shopping list:', error);
+      return false; // Return failure status
+    }
+  };
 
   const getShoppingList = () => {
     const list = { ...shoppingList }
