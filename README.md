@@ -37,6 +37,10 @@ A modern, user-friendly recipe management platform built with React that helps y
 
 <img width="1501" alt="Screenshot 2025-04-20 at 2 41 09 PM" src="https://github.com/user-attachments/assets/ad3b6ab7-aa4d-45ae-ab4b-8857ab3dd1ab" />
 
+### 5. PDF export feature
+
+<img width="1511" alt="Screenshot 2025-04-20 at 2 40 54 PM" src="https://github.com/user-attachments/assets/dc0be16c-db5b-450c-8e9e-b4ff4f632887" />
+
 ## 🚀 Live Demo
 
 Check out the live application at: [https://recipemanagerx.vercel.app/](https://recipemanagerx.vercel.app/)
