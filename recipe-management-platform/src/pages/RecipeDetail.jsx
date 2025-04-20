@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { usePlanner } from '../context/PlannerContext'
 
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000 // 1 second
+
 export default function RecipeDetail() {
   const { id } = useParams()
   const [recipe, setRecipe] = useState(null)
@@ -11,27 +14,59 @@ export default function RecipeDetail() {
   const { addMultipleToShoppingList } = usePlanner()
 
   useEffect(() => {
+    let retryCount = 0
+    let mounted = true
+
     const fetchRecipe = async () => {
       try {
         const response = await fetch(
           `https://www.themealdb.com/api/json/v1/1/lookup.php?i=${id}`
         )
-        if (!response.ok) throw new Error('Failed to fetch recipe')
-        const data = await response.json()
-        if (data.meals) {
-          setRecipe(data.meals[0])
-        } else {
-          setError('Recipe not found')
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            throw new Error('Recipe not found')
+          }
+          throw new Error(`Failed to fetch recipe: ${response.statusText}`)
         }
-      } catch (_) {
-        setError('Failed to load recipe details')
+
+        const data = await response.json()
+        
+        if (!mounted) return
+
+        if (data.meals && data.meals[0]) {
+          setRecipe(data.meals[0])
+          setError(null)
+        } else {
+          throw new Error('Recipe not found')
+        }
+      } catch (error) {
+        console.error('Error fetching recipe:', error)
+        
+        if (!mounted) return
+
+        // Retry logic for network errors
+        if (retryCount < MAX_RETRIES && !error.message.includes('not found')) {
+          retryCount++
+          console.log(`Retrying (${retryCount}/${MAX_RETRIES})...`)
+          setTimeout(fetchRecipe, RETRY_DELAY * retryCount)
+          return
+        }
+
+        setError(error.message || 'Failed to load recipe details')
       } finally {
-        setLoading(false)
+        if (mounted) {
+          setLoading(false)
+        }
       }
     }
 
     fetchRecipe()
-    setAddedToList(false) // Reset the added state when recipe changes
+
+    // Cleanup function to prevent memory leaks
+    return () => {
+      mounted = false
+    }
   }, [id])
 
   const getIngredients = () => {
