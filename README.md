@@ -90,15 +90,6 @@ To preview the production build locally:
 npm run preview
 ```
 
-## 📱 Responsive Design
-
-The application is fully responsive and works seamlessly across:
-- Desktop computers
-- Tablets
-- Mobile devices
-
-![Responsive Design Screenshots]
-[Add screenshots showing the app on different devices]
 
 ## 🔒 Security
 
@@ -114,13 +105,5 @@ The application is fully responsive and works seamlessly across:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📞 Support
-
-For support, email [your-email@example.com] or open an issue in the repository.
-
 ---
-Made with ❤️ by [Your Name]
+Made with ❤️ by subhan
