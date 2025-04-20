@@ -10,8 +10,7 @@ A modern, user-friendly recipe management platform built with React that helps y
 - Search and filter recipes
 - Add favorite recipes to quick access
 
-![Recipe Management Screenshot]
-[Add a screenshot of the recipe management interface]
+<img width="1500" alt="Screenshot 2025-04-20 at 2 36 57 PM" src="https://github.com/user-attachments/assets/c07bcb0b-8e01-4fb7-991f-d07823a657f2" />
 
 ### 2. Recipe Details
 - Detailed recipe views with ingredients and instructions
@@ -19,8 +18,8 @@ A modern, user-friendly recipe management platform built with React that helps y
 - Cooking time and difficulty level
 - Nutritional information
 
-![Recipe Details Screenshot]
-[Add a screenshot of a recipe detail page]
+<img width="1507" alt="Screenshot 2025-04-20 at 2 37 37 PM" src="https://github.com/user-attachments/assets/0492c713-e6a8-4676-a74e-c94377d0c26f" />
+
 
 ### 3. Meal Planner
 - Plan meals for days or weeks
@@ -28,8 +27,7 @@ A modern, user-friendly recipe management platform built with React that helps y
 - Calendar view of meal plans
 - Quick recipe assignment to different days
 
-![Meal Planner Screenshot]
-[Add a screenshot of the meal planner interface]
+<img width="1512" alt="Screenshot 2025-04-20 at 2 40 36 PM" src="https://github.com/user-attachments/assets/116a5b30-b23f-44dc-aaa6-77bec17a4bd1" />
 
 ### 4. Shopping List
 - Automatic shopping list generation from meal plans
@@ -37,8 +35,7 @@ A modern, user-friendly recipe management platform built with React that helps y
 - Check off items while shopping
 - Categorized items for easier shopping
 
-![Shopping List Screenshot]
-[Add a screenshot of the shopping list feature]
+<img width="1501" alt="Screenshot 2025-04-20 at 2 41 09 PM" src="https://github.com/user-attachments/assets/ad3b6ab7-aa4d-45ae-ab4b-8857ab3dd1ab" />
 
 ## 🚀 Live Demo
 
