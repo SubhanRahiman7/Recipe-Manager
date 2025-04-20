@@ -88,17 +88,6 @@ function App() {
             <footer className="bg-white bg-opacity-90 shadow-inner mt-8">
               <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 <div className="flex flex-col items-center space-y-4">
-                  <div className="flex space-x-6">
-                    <a href="#" className="text-gray-500 hover:text-blue-600 transition-colors duration-200">
-                      About
-                    </a>
-                    <a href="#" className="text-gray-500 hover:text-blue-600 transition-colors duration-200">
-                      Contact
-                    </a>
-                    <a href="#" className="text-gray-500 hover:text-blue-600 transition-colors duration-200">
-                      Privacy
-                    </a>
-                  </div>
                   <p className="text-gray-500 text-sm">
                     © {new Date().getFullYear()} Recipe Manager. All rights reserved.
                   </p>
