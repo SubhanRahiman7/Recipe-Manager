@@ -72,8 +72,8 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/subhanrahiman/recipe-management-platform.git
-cd recipe-management-platform
+git clone https://github.com/SubhanRahiman7/Recipe-Manager.git
+cd Recipe-Manager/recipe-management-platform
 ```
 
 2. **Install dependencies**
