@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { usePlanner } from '../context/PlannerContext'
-import ShoppingList from '../components/ShoppingList'
-import RecipeDetails from '../components/RecipeDetails'
+import ShoppingList from './ShoppingList'
 import ExportModal from '../components/ExportModal'
 import WelcomeModal from '../components/WelcomeModal'
+
+const WELCOME_SHOWN_KEY = 'welcomeModalShown'
 
 const MealPlanner = () => {
   const [isRecipeModalOpen, setIsRecipeModalOpen] = useState(false)
   const [isShoppingListOpen, setIsShoppingListOpen] = useState(false)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [isExportOpen, setIsExportOpen] = useState(false)
-  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(true)
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState(() => {
+    // Check if welcome modal has been shown before
+    return !localStorage.getItem(WELCOME_SHOWN_KEY)
+  })
   const [selectedDay, setSelectedDay] = useState(null)
   const [selectedMeal, setSelectedMeal] = useState(null)
   const [selectedRecipe, setSelectedRecipe] = useState(null)
@@ -29,13 +33,26 @@ const MealPlanner = () => {
     DAYS
   } = usePlanner()
 
-  // Check if there's an existing meal plan
   useEffect(() => {
-    const hasMealPlan = Object.keys(mealPlan).length > 0
+    console.log('MealPlanner mounted')
+    console.log('Context values:', { mealPlan, MEALS, DAYS })
+    
+    // Check if there's an existing meal plan
+    const hasMealPlan = Object.keys(mealPlan || {}).length > 0
+    console.log('Has meal plan:', hasMealPlan)
     if (hasMealPlan) {
       setIsWelcomeModalOpen(false)
     }
   }, [mealPlan])
+
+  const handleCloseWelcomeModal = () => {
+    setIsWelcomeModalOpen(false)
+    localStorage.setItem(WELCOME_SHOWN_KEY, 'true')
+  }
+
+  // Fallback values in case context fails
+  const days = DAYS || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+  const meals = MEALS || ['breakfast', 'lunch', 'dinner']
 
   const handleAddMeal = (day, meal) => {
     setSelectedDay(day)
@@ -99,19 +116,18 @@ const MealPlanner = () => {
 
   const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1)
 
-  // Check if mealPlan is properly initialized
-  console.log('Current meal plan:', mealPlan)
-
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 animate-fade-in">
       <div className="space-y-6">
         {/* Header */}
         <div className="flex justify-between items-center">
-          <h1 className="text-3xl font-bold">Meal Planner</h1>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 text-transparent bg-clip-text">
+            Meal Planner
+          </h1>
           <div className="space-x-4">
             <button
               onClick={() => setIsExportOpen(true)}
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              className="button-primary inline-flex items-center"
             >
               <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -119,8 +135,8 @@ const MealPlanner = () => {
               Export
             </button>
             <button
-              onClick={() => setIsShoppingListOpen(true)}
-              className="inline-flex items-center px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700"
+              onClick={() => setIsShoppingListOpen(!isShoppingListOpen)}
+              className="button-secondary inline-flex items-center"
             >
               <svg className="w-5 h-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                 <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
@@ -129,7 +145,7 @@ const MealPlanner = () => {
             </button>
             <button
               onClick={clearMealPlan}
-              className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+              className="button-danger inline-flex items-center"
             >
               Clear Plan
             </button>
@@ -137,27 +153,27 @@ const MealPlanner = () => {
         </div>
 
         {/* Meal Grid */}
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="bg-white shadow-lg rounded-xl overflow-hidden">
           <div className="grid grid-cols-8 gap-4 p-6">
             {/* Header row */}
             <div className="col-span-1"></div>
-            {DAYS.map(day => (
-              <div key={day} className="text-center font-semibold">
+            {days.map(day => (
+              <div key={day} className="text-center font-semibold text-responsive">
                 {capitalize(day)}
               </div>
             ))}
 
             {/* Meal rows */}
-            {MEALS.map(meal => (
+            {meals.map(meal => (
               <React.Fragment key={meal}>
-                <div className="font-semibold capitalize">{meal}</div>
-                {DAYS.map(day => (
+                <div className="font-semibold capitalize text-responsive">{meal}</div>
+                {days.map(day => (
                   <div
                     key={`${day}-${meal}`}
-                    className="bg-gray-50 p-3 rounded-lg border border-gray-200"
+                    className="grid-cell hover-card"
                   >
                     {mealPlan && mealPlan[day] && mealPlan[day][meal] ? (
-                      <div className="space-y-2">
+                      <div className="space-y-2 p-3 animate-fade-in">
                         <p
                           onClick={() => !mealPlan[day][meal].isCustom && handleViewRecipe(mealPlan[day][meal])}
                           className={`text-sm font-medium ${!mealPlan[day][meal].isCustom ? 'cursor-pointer hover:text-blue-600' : ''} truncate`}
@@ -166,7 +182,7 @@ const MealPlanner = () => {
                         </p>
                         <button
                           onClick={() => removeMealFromDay(day, meal)}
-                          className="w-full px-2 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700"
+                          className="w-full px-2 py-1 text-xs button-danger"
                         >
                           Remove
                         </button>
@@ -174,7 +190,7 @@ const MealPlanner = () => {
                     ) : (
                       <button
                         onClick={() => handleAddMeal(day, meal)}
-                        className="w-full h-full px-3 py-2 text-gray-600 hover:text-blue-600 hover:bg-gray-100 rounded-md transition-colors duration-150"
+                        className="w-full h-full px-3 py-2 text-gray-600 hover:text-blue-600 transition-all duration-300 hover:bg-blue-50 rounded-md"
                       >
                         Add Meal
                       </button>
@@ -189,10 +205,10 @@ const MealPlanner = () => {
 
       {/* Recipe Search Modal */}
       {isRecipeModalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto">
+        <div className="fixed inset-0 z-50 overflow-y-auto modal-overlay">
           <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsRecipeModalOpen(false)}></div>
           <div className="relative min-h-screen flex items-center justify-center p-4">
-            <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full">
+            <div className="relative bg-white rounded-xl shadow-xl max-w-4xl w-full modal-content glass-effect">
               <div className="p-6">
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-semibold">
@@ -282,22 +298,106 @@ const MealPlanner = () => {
 
       {/* Welcome Modal */}
       {isWelcomeModalOpen && (
-        <WelcomeModal onClose={() => setIsWelcomeModalOpen(false)} />
+        <WelcomeModal onClose={handleCloseWelcomeModal} />
       )}
 
-      {/* Other Modals */}
+      {/* Shopping List Modal */}
       {isShoppingListOpen && (
-        <ShoppingList onClose={() => setIsShoppingListOpen(false)} />
+        <div className="fixed inset-0 z-50 overflow-y-auto modal-overlay">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => setIsShoppingListOpen(false)}></div>
+          <div className="relative min-h-screen flex items-center justify-center p-4">
+            <div className="relative bg-white rounded-xl shadow-xl max-w-4xl w-full modal-content glass-effect">
+              <div className="absolute top-4 right-4">
+                <button
+                  onClick={() => setIsShoppingListOpen(false)}
+                  className="text-gray-400 hover:text-gray-500 transition-colors duration-200"
+                >
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              <ShoppingList />
+            </div>
+          </div>
+        </div>
       )}
 
+      {/* Recipe Details Modal */}
       {isDetailsOpen && selectedRecipe && (
-        <RecipeDetails
-          recipe={selectedRecipe}
-          onClose={() => {
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="fixed inset-0 bg-black bg-opacity-50" onClick={() => {
             setIsDetailsOpen(false)
             setSelectedRecipe(null)
-          }}
-        />
+          }}></div>
+          <div className="relative min-h-screen flex items-center justify-center p-4">
+            <div className="relative bg-white rounded-lg shadow-xl max-w-4xl w-full">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h2 className="text-2xl font-semibold">{selectedRecipe.strMeal}</h2>
+                  <button
+                    onClick={() => {
+                      setIsDetailsOpen(false)
+                      setSelectedRecipe(null)
+                    }}
+                    className="text-gray-400 hover:text-gray-500"
+                  >
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <img
+                      src={selectedRecipe.strMealThumb}
+                      alt={selectedRecipe.strMeal}
+                      className="w-full h-64 object-cover rounded-lg"
+                    />
+                    <div className="mt-4">
+                      <h3 className="text-lg font-medium mb-2">Ingredients</h3>
+                      <ul className="space-y-2">
+                        {Array.from({ length: 20 }).map((_, i) => {
+                          const ingredient = selectedRecipe[`strIngredient${i + 1}`]
+                          const measure = selectedRecipe[`strMeasure${i + 1}`]
+                          if (ingredient && ingredient.trim()) {
+                            return (
+                              <li key={i} className="text-gray-600">
+                                {measure && measure.trim() ? `${measure} - ` : ''}{ingredient}
+                              </li>
+                            )
+                          }
+                          return null
+                        })}
+                      </ul>
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-medium mb-2">Instructions</h3>
+                    <p className="text-gray-600 whitespace-pre-line">{selectedRecipe.strInstructions}</p>
+                    {selectedRecipe.strYoutube && (
+                      <div className="mt-4">
+                        <h3 className="text-lg font-medium mb-2">Video Tutorial</h3>
+                        <a
+                          href={selectedRecipe.strYoutube}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center text-blue-600 hover:text-blue-700"
+                        >
+                          <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 0C4.477 0 0 4.477 0 10c0 5.523 4.477 10 10 10 5.523 0 10-4.477 10-10C20 4.477 15.523 0 10 0zm3.11 10.385l-4.5 3A.667.667 0 017 12.8V7.2a.667.667 0 011.11-.515l4.5 3a.667.667 0 010 1.13z" />
+                          </svg>
+                          Watch on YouTube
+                        </a>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
 
       {isExportOpen && (

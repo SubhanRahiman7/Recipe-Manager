@@ -1,159 +1,107 @@
-import React, { useState, useEffect } from 'react'
-import { usePlanner } from '../context/PlannerContext'
-import html2pdf from 'html2pdf.js'
+import React, { useState, useEffect } from 'react';
+import { usePlanner } from '../context/PlannerContext';
 
-const ShoppingList = () => {
-  const { getShoppingList } = usePlanner()
-  const [items, setItems] = useState([])
-  const [newItem, setNewItem] = useState('')
-  const [newQuantity, setNewQuantity] = useState('')
-  const [checkedItems, setCheckedItems] = useState(new Set())
+export default function ShoppingList() {
+  const { getShoppingList, addToShoppingList, removeFromShoppingList } = usePlanner();
+  const [ingredients, setIngredients] = useState({});
+  const [newItem, setNewItem] = useState('');
+  const [newMeasure, setNewMeasure] = useState('');
 
-  // Load items from meal plan
   useEffect(() => {
-    const mealPlanItems = getShoppingList()
-    const formattedItems = Object.entries(mealPlanItems).map(([name, measures]) => ({
-      name,
-      quantity: measures.join(' or '),
-      fromMealPlan: true
-    }))
-    setItems(formattedItems)
-  }, [getShoppingList])
+    const list = getShoppingList();
+    setIngredients(list);
+  }, [getShoppingList]);
 
-  const addItem = (e) => {
-    e.preventDefault()
-    if (!newItem.trim()) return
-
-    setItems(prev => [
-      ...prev,
-      {
-        name: newItem.trim(),
-        quantity: newQuantity.trim(),
-        fromMealPlan: false
-      }
-    ])
-    setNewItem('')
-    setNewQuantity('')
-  }
-
-  const removeItem = (index) => {
-    setItems(prev => prev.filter((_, i) => i !== index))
-  }
-
-  const toggleItem = (index) => {
-    const newChecked = new Set(checkedItems)
-    if (newChecked.has(index)) {
-      newChecked.delete(index)
-    } else {
-      newChecked.add(index)
+  const handleAddItem = (e) => {
+    e.preventDefault();
+    if (newItem.trim()) {
+      addToShoppingList(newItem.trim(), newMeasure.trim());
+      setNewItem('');
+      setNewMeasure('');
+      setIngredients(getShoppingList());
     }
-    setCheckedItems(newChecked)
-  }
+  };
 
-  const clearChecked = () => {
-    setCheckedItems(new Set())
-  }
-
-  const exportToPDF = () => {
-    const element = document.getElementById('shopping-list-content')
-    const opt = {
-      margin: 1,
-      filename: 'shopping-list.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
-    }
-    html2pdf().set(opt).from(element).save()
-  }
+  const handleRemoveItem = (ingredient) => {
+    removeFromShoppingList(ingredient);
+    setIngredients(getShoppingList());
+  };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white shadow rounded-lg p-6">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-2xl font-bold">Shopping List</h2>
-          <div className="space-x-4">
-            <button
-              onClick={clearChecked}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800"
-            >
-              Clear Checked
-            </button>
-            <button
-              onClick={exportToPDF}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              Export to PDF
-            </button>
-          </div>
-        </div>
-
-        {/* Add Item Form */}
-        <form onSubmit={addItem} className="flex gap-4 mb-6">
+    <div className="container mx-auto px-4 py-8 animate-fade-in">
+      <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-teal-600 to-blue-600 text-transparent bg-clip-text">
+        Shopping List
+      </h1>
+      
+      <form onSubmit={handleAddItem} className="mb-6 animate-slide-in">
+        <div className="flex gap-4">
           <input
             type="text"
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
             placeholder="Add new item..."
-            className="flex-1 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="input-primary flex-1"
           />
           <input
             type="text"
-            value={newQuantity}
-            onChange={(e) => setNewQuantity(e.target.value)}
+            value={newMeasure}
+            onChange={(e) => setNewMeasure(e.target.value)}
             placeholder="Quantity (optional)"
-            className="w-40 px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+            className="input-primary w-32"
           />
           <button
             type="submit"
-            className="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+            className="button-primary"
           >
             Add Item
           </button>
-        </form>
+        </div>
+      </form>
 
-        {/* Shopping List */}
-        <div id="shopping-list-content" className="space-y-4">
-          {items.length === 0 ? (
-            <p className="text-center text-gray-500 py-8">
-              Your shopping list is empty. Add items or create a meal plan to generate a list.
-            </p>
-          ) : (
-            <div className="divide-y divide-gray-200">
-              {items.map((item, index) => (
-                <div
-                  key={index}
-                  className="flex items-center py-3 group"
-                >
-                  <input
-                    type="checkbox"
-                    checked={checkedItems.has(index)}
-                    onChange={() => toggleItem(index)}
-                    className="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
-                  />
-                  <div className={`flex-1 ml-3 ${checkedItems.has(index) ? 'line-through text-gray-400' : ''}`}>
-                    <span className="font-medium">{item.name}</span>
-                    {item.quantity && (
-                      <span className="text-sm text-gray-500 ml-2">
-                        ({item.quantity})
-                      </span>
-                    )}
-                  </div>
-                  {!item.fromMealPlan && (
-                    <button
-                      onClick={() => removeItem(index)}
-                      className="opacity-0 group-hover:opacity-100 px-2 py-1 text-red-600 hover:text-red-800"
-                    >
-                      Remove
-                    </button>
+      <div className="bg-white rounded-xl shadow-lg p-6 glass-effect">
+        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+          {Object.entries(ingredients).map(([ingredient, measures], index) => (
+            <div
+              key={ingredient}
+              className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg border border-gray-100 hover:border-blue-200 transition-all duration-300 animate-fade-in hover-card"
+              style={{ animationDelay: `${index * 50}ms` }}
+            >
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  onChange={() => handleRemoveItem(ingredient)}
+                  className="h-5 w-5 rounded border-gray-300 text-blue-600 transition duration-150 ease-in-out"
+                />
+                <span className="text-responsive">
+                  {ingredient}
+                  {measures.length > 0 && (
+                    <span className="text-gray-500 ml-2">
+                      ({measures.join(', ')})
+                    </span>
                   )}
-                </div>
-              ))}
+                </span>
+              </div>
+              <button
+                onClick={() => handleRemoveItem(ingredient)}
+                className="text-red-500 hover:text-red-700 transition-colors duration-200"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform hover:scale-110 transition-transform duration-200" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          ))}
+          {Object.keys(ingredients).length === 0 && (
+            <div className="text-gray-500 text-center py-8 animate-fade-in">
+              <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              <p className="text-lg">No items in your shopping list</p>
+              <p className="text-sm mt-2">Add items using the form above or from your meal plan</p>
             </div>
           )}
         </div>
       </div>
     </div>
-  )
+  );
 }
-
-export default ShoppingList

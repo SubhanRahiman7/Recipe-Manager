@@ -5,6 +5,10 @@ const ExportModal = ({ onClose }) => {
   const [exportType, setExportType] = useState('all') // 'all', 'mealplan', or 'shopping'
   const { mealPlan, getShoppingList, DAYS, MEALS } = usePlanner()
 
+  // Fallback values in case context fails
+  const days = DAYS || ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+  const meals = MEALS || ['breakfast', 'lunch', 'dinner']
+
   const handlePrint = () => {
     const printWindow = window.open('', '_blank')
     const ingredients = getShoppingList()
@@ -34,12 +38,12 @@ const ExportModal = ({ onClose }) => {
             <table>
               <tr>
                 <th></th>
-                ${DAYS.map(day => `<th>${day.charAt(0).toUpperCase() + day.slice(1)}</th>`).join('')}
+                ${days.map(day => `<th>${day.charAt(0).toUpperCase() + day.slice(1)}</th>`).join('')}
               </tr>
-              ${MEALS.map(meal => `
+              ${meals.map(meal => `
                 <tr>
                   <th>${meal.charAt(0).toUpperCase() + meal.slice(1)}</th>
-                  ${DAYS.map(day => `
+                  ${days.map(day => `
                     <td>
                       ${mealPlan[day]?.[meal]?.strMeal || '-'}
                     </td>
@@ -51,7 +55,7 @@ const ExportModal = ({ onClose }) => {
 
           ${(exportType === 'all' || exportType === 'shopping') ? `
             <h1>Shopping List</h1>
-            ${Object.entries(ingredients).map(([ingredient, measures]) => `
+            ${Object.entries(ingredients || {}).map(([ingredient, measures]) => `
               <div class="shopping-item">
                 <strong>${ingredient}</strong>
                 <div class="measures">${measures.join(', ')}</div>

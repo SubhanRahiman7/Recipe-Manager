@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 
 const RecipeExplorer = () => {
   const [searchQuery, setSearchQuery] = useState('')
@@ -196,140 +197,120 @@ const RecipeExplorer = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header Section */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 mb-4">
-            Discover Amazing Recipes
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Search through thousands of delicious recipes or get inspired with random suggestions
+    <div className="container mx-auto px-4 py-8 animate-fade-in">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-teal-600 text-transparent bg-clip-text">
+          Explore Recipes
+        </h1>
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          Discover delicious recipes from around the world. Search by name or ingredients to find your next favorite meal.
+        </p>
+      </div>
+
+      <form onSubmit={searchRecipes} className="max-w-2xl mx-auto mb-12 animate-slide-in">
+        <div className="flex gap-4">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search for recipes..."
+            className="input-primary flex-1 text-lg"
+          />
+          <button
+            type="submit"
+            disabled={loading || !searchQuery.trim()}
+            className="button-primary flex items-center px-6"
+          >
+            {loading ? (
+              <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            )}
+            {loading ? 'Searching...' : 'Search'}
+          </button>
+        </div>
+      </form>
+
+      <div className="max-w-2xl mx-auto mb-12 flex justify-center">
+        <button
+          onClick={getRandomRecipes}
+          disabled={loading}
+          className="button-secondary flex items-center px-6 py-3 transform hover:scale-105 transition-all duration-300"
+        >
+          {loading ? (
+            <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+            </svg>
+          ) : (
+            <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+            </svg>
+          )}
+          {loading ? 'Loading...' : 'Surprise Me!'}
+        </button>
+      </div>
+
+      {error && (
+        <div className="max-w-2xl mx-auto mb-8 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 animate-fade-in">
+          <p className="flex items-center">
+            <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+            </svg>
+            {error}
           </p>
         </div>
+      )}
 
-        {/* Search Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            <div className="flex gap-4">
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-              >
-                <option value="all">All Categories</option>
-                {categories.map(category => (
-                  <option key={category.strCategory} value={category.strCategory}>
-                    {category.strCategory}
-                  </option>
-                ))}
-              </select>
-              <button
-                onClick={getRandomRecipes}
-                className="px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
-                disabled={loading}
-              >
-                <span className="hidden sm:inline">Get Random</span> Recipes
-              </button>
-            </div>
-            
-            <form onSubmit={searchRecipes} className="flex gap-4">
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for recipes..."
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+      <div className="card-grid">
+        {recipes.map((recipe, index) => (
+          <Link
+            key={recipe.idMeal}
+            to={`/recipes/${recipe.idMeal}`}
+            className="hover-card bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 animate-fade-in"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div className="relative group">
+              <img
+                src={recipe.strMealThumb}
+                alt={recipe.strMeal}
+                className="w-full h-48 object-cover transform transition-transform duration-300 group-hover:scale-105"
               />
-              <button
-                type="submit"
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg disabled:opacity-50"
-                disabled={loading}
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    Searching...
-                  </span>
-                ) : (
-                  'Search'
-                )}
-              </button>
-            </form>
-          </div>
-
-          {error && (
-            <div className="bg-red-50 text-red-700 p-4 rounded-lg text-center">
-              {error}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
-          )}
-        </div>
-
-        {/* Recipe Grid */}
-        {loading && !recipes.length ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
-            <p className="mt-4 text-gray-600">Finding delicious recipes...</p>
-          </div>
-        ) : recipes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {recipes.map(recipe => (
-              <div 
-                key={recipe.idMeal}
-                onClick={() => setSelectedRecipe(recipe)}
-                className="bg-white rounded-xl shadow-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-              >
-                <div className="relative">
-                  <img
-                    src={recipe.strMealThumb}
-                    alt={recipe.strMeal}
-                    className="w-full h-64 object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <h3 className="absolute bottom-4 left-4 right-4 text-xl font-bold text-white">
-                    {recipe.strMeal}
-                  </h3>
-                </div>
-                
-                <div className="p-4">
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
-                      {recipe.strCategory}
-                    </span>
-                    {recipe.strArea && (
-                      <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                        {recipe.strArea}
-                      </span>
-                    )}
-                  </div>
-                </div>
+            <div className="p-4">
+              <h3 className="text-lg font-semibold mb-2 text-gray-800">{recipe.strMeal}</h3>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">{recipe.strCategory}</span>
+                <span className="text-sm text-gray-500">{recipe.strArea}</span>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-12">
-            <div className="bg-white rounded-xl shadow-lg p-8 max-w-2xl mx-auto">
-              <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-              <p className="text-xl text-gray-600">
-                {searchQuery ? 'No recipes found' : 'Search for recipes or click "Random Recipes" to get started'}
-              </p>
             </div>
-          </div>
-        )}
-
-        {/* Recipe Detail Modal */}
-        {selectedRecipe && (
-          <RecipeModal
-            recipe={selectedRecipe}
-            onClose={() => setSelectedRecipe(null)}
-          />
-        )}
+          </Link>
+        ))}
       </div>
+
+      {recipes.length === 0 && searchQuery && !loading && (
+        <div className="text-center py-12 animate-fade-in">
+          <svg className="w-16 h-16 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <h3 className="text-lg font-medium text-gray-900">No recipes found</h3>
+          <p className="mt-2 text-gray-500">Try adjusting your search terms or explore different ingredients.</p>
+        </div>
+      )}
+
+      {/* Recipe Detail Modal */}
+      {selectedRecipe && (
+        <RecipeModal
+          recipe={selectedRecipe}
+          onClose={() => setSelectedRecipe(null)}
+        />
+      )}
     </div>
   )
 }

@@ -1,3 +1,158 @@
 @tailwind base;
 @tailwind components;
-@tailwind utilities; 
+@tailwind utilities;
+
+/* Custom Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Custom Classes */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.4s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out;
+}
+
+.animate-bounce-soft {
+  animation: bounce 2s infinite;
+}
+
+/* Enhanced Modal Styles */
+.modal-overlay {
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.modal-content {
+  transform-origin: center;
+  animation: scaleIn 0.3s ease-out;
+}
+
+/* Card Hover Effects */
+.hover-card {
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Styles */
+.button-primary {
+  @apply px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-md 
+         transition-all duration-300 ease-in-out transform hover:scale-105 
+         hover:from-blue-600 hover:to-blue-700 hover:shadow-lg 
+         active:scale-95 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+}
+
+.button-secondary {
+  @apply px-4 py-2 bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-md 
+         transition-all duration-300 ease-in-out transform hover:scale-105 
+         hover:from-teal-600 hover:to-teal-700 hover:shadow-lg 
+         active:scale-95 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:ring-opacity-50;
+}
+
+.button-danger {
+  @apply px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-md 
+         transition-all duration-300 ease-in-out transform hover:scale-105 
+         hover:from-red-600 hover:to-red-700 hover:shadow-lg 
+         active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-opacity-50;
+}
+
+/* Input Styles */
+.input-primary {
+  @apply px-4 py-2 border border-gray-300 rounded-md transition-all duration-200
+         focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none;
+}
+
+/* Grid Cell Styles */
+.grid-cell {
+  @apply bg-white rounded-lg border border-gray-200 transition-all duration-300
+         hover:border-blue-300 hover:shadow-md;
+}
+
+/* Navigation Styles */
+.nav-link {
+  @apply text-gray-700 transition-all duration-200 border-b-2 border-transparent
+         hover:text-blue-600 hover:border-blue-600;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #666;
+}
+
+/* Loading Animation */
+.loading-spinner {
+  @apply animate-spin h-5 w-5 text-white;
+}
+
+/* Glass Effect */
+.glass-effect {
+  @apply bg-white bg-opacity-70 backdrop-filter backdrop-blur-lg;
+}
+
+/* Card Grid Layout */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Responsive Typography */
+@screen sm {
+  .text-responsive {
+    font-size: clamp(1rem, 1.5vw, 1.25rem);
+  }
+}
+
+/* Theme Colors */
+:root {
+  --primary-light: #60A5FA;
+  --primary: #3B82F6;
+  --primary-dark: #2563EB;
+  --secondary-light: #2DD4BF;
+  --secondary: #14B8A6;
+  --secondary-dark: #0D9488;
+  --accent-light: #F472B6;
+  --accent: #EC4899;
+  --accent-dark: #DB2777;
+} 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 
 const PlannerContext = createContext()
 
@@ -30,14 +30,28 @@ export const PlannerProvider = ({ children }) => {
   const [mealPlan, setMealPlan] = useState(() => {
     try {
       const savedPlan = localStorage.getItem(MEAL_PLAN_KEY)
-      return savedPlan ? JSON.parse(savedPlan) : {}
+      if (savedPlan) {
+        return JSON.parse(savedPlan)
+      }
+      // Initialize with breakfast on Tuesday
+      return {
+        tuesday: {
+          breakfast: {
+            strMeal: "Breakfast",
+            isCustom: true,
+            strCategory: "Custom",
+            strInstructions: "",
+            strMealThumb: "/placeholder-meal.jpg"
+          }
+        }
+      }
     } catch (error) {
       console.error('Error loading meal plan:', error)
       return {}
     }
   })
 
-  // Initialize shoppingList from localStorage
+  // Initialize shopping list from localStorage
   const [shoppingList, setShoppingList] = useState(() => {
     try {
       const savedList = localStorage.getItem(SHOPPING_LIST_KEY)
@@ -48,68 +62,94 @@ export const PlannerProvider = ({ children }) => {
     }
   })
 
-  // Save meal plan to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(MEAL_PLAN_KEY, JSON.stringify(mealPlan))
-    } catch (error) {
-      console.error('Error saving meal plan:', error)
-    }
-  }, [mealPlan])
-
-  // Save shopping list to localStorage whenever it changes
-  useEffect(() => {
-    try {
-      localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(shoppingList))
-    } catch (error) {
-      console.error('Error saving shopping list:', error)
-    }
-  }, [shoppingList])
-
   const addMealToDay = (day, mealType, meal) => {
-    setMealPlan(prev => {
-      const newPlan = { ...prev }
-      if (!newPlan[day]) {
-        newPlan[day] = {}
+    const newPlan = { ...mealPlan }
+    if (!newPlan[day]) {
+      newPlan[day] = {}
+    }
+    if (typeof meal === 'string') {
+      newPlan[day][mealType] = {
+        strMeal: meal,
+        isCustom: true,
+        strCategory: 'Custom',
+        strInstructions: '',
+        strMealThumb: '/placeholder-meal.jpg'
       }
-      if (typeof meal === 'string') {
-        newPlan[day][mealType] = {
-          strMeal: meal,
-          isCustom: true,
-          strCategory: 'Custom',
-          strInstructions: '',
-          strMealThumb: '/placeholder-meal.jpg'
-        }
-      } else {
-        newPlan[day][mealType] = meal
-      }
-      return newPlan
-    })
+    } else {
+      newPlan[day][mealType] = meal
+    }
+    setMealPlan(newPlan)
+    localStorage.setItem(MEAL_PLAN_KEY, JSON.stringify(newPlan))
   }
 
   const removeMealFromDay = (day, mealType) => {
-    setMealPlan(prev => {
-      const newPlan = { ...prev }
-      if (newPlan[day] && newPlan[day][mealType]) {
-        delete newPlan[day][mealType]
-        if (Object.keys(newPlan[day]).length === 0) {
-          delete newPlan[day]
-        }
+    const newPlan = { ...mealPlan }
+    if (newPlan[day] && newPlan[day][mealType]) {
+      delete newPlan[day][mealType]
+      if (Object.keys(newPlan[day]).length === 0) {
+        delete newPlan[day]
       }
-      return newPlan
-    })
+    }
+    setMealPlan(newPlan)
+    localStorage.setItem(MEAL_PLAN_KEY, JSON.stringify(newPlan))
   }
 
   const clearMealPlan = () => {
     setMealPlan({})
-    setShoppingList({}) // Clear shopping list when meal plan is cleared
-    // Clear from localStorage
+    setShoppingList({})
     localStorage.removeItem(MEAL_PLAN_KEY)
     localStorage.removeItem(SHOPPING_LIST_KEY)
   }
 
+  const addToShoppingList = (ingredient, measure = '') => {
+    const normalizedIngredient = normalizeIngredient(ingredient)
+    const newList = { ...shoppingList }
+    
+    // Initialize array if ingredient doesn't exist
+    if (!newList[normalizedIngredient]) {
+      newList[normalizedIngredient] = []
+    }
+    
+    // Add measure if it's not already in the list
+    if (measure && measure.trim() && !newList[normalizedIngredient].includes(measure.trim())) {
+      newList[normalizedIngredient].push(measure.trim())
+    }
+    
+    setShoppingList(newList)
+    localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(newList))
+  }
+
+  const addMultipleToShoppingList = (ingredients) => {
+    const newList = { ...shoppingList }
+    
+    ingredients.forEach(({ ingredient, measure = '' }) => {
+      const normalizedIngredient = normalizeIngredient(ingredient)
+      
+      // Initialize array if ingredient doesn't exist
+      if (!newList[normalizedIngredient]) {
+        newList[normalizedIngredient] = []
+      }
+      
+      // Add measure if it's not already in the list
+      if (measure && measure.trim() && !newList[normalizedIngredient].includes(measure.trim())) {
+        newList[normalizedIngredient].push(measure.trim())
+      }
+    })
+    
+    setShoppingList(newList)
+    localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(newList))
+  }
+
+  const removeFromShoppingList = (ingredient) => {
+    const normalizedIngredient = normalizeIngredient(ingredient)
+    const newList = { ...shoppingList }
+    delete newList[normalizedIngredient]
+    setShoppingList(newList)
+    localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(newList))
+  }
+
   const getShoppingList = () => {
-    const ingredients = { ...shoppingList } // Start with manually added items
+    const list = { ...shoppingList }
     
     // Add ingredients from meal plan
     if (mealPlan && Object.keys(mealPlan).length > 0) {
@@ -125,11 +165,11 @@ export const PlannerProvider = ({ children }) => {
             
             if (ingredient && ingredient.trim()) {
               const normalizedIngredient = normalizeIngredient(ingredient)
-              if (!ingredients[normalizedIngredient]) {
-                ingredients[normalizedIngredient] = []
+              if (!list[normalizedIngredient]) {
+                list[normalizedIngredient] = []
               }
-              if (measure && measure.trim() && !ingredients[normalizedIngredient].includes(measure.trim())) {
-                ingredients[normalizedIngredient].push(measure.trim())
+              if (measure && measure.trim() && !list[normalizedIngredient].includes(measure.trim())) {
+                list[normalizedIngredient].push(measure.trim())
               }
             }
           }
@@ -139,55 +179,22 @@ export const PlannerProvider = ({ children }) => {
 
     // Convert to final format with capitalized keys
     return Object.fromEntries(
-      Object.entries(ingredients).map(([ingredient, measures]) => [
+      Object.entries(list).map(([ingredient, measures]) => [
         ingredient.charAt(0).toUpperCase() + ingredient.slice(1),
         measures
       ])
     )
   }
 
-  const addToShoppingList = (ingredient, measure = '') => {
-    const normalizedIngredient = normalizeIngredient(ingredient)
-    setShoppingList(prev => {
-      const newList = { ...prev }
-      if (!newList[normalizedIngredient]) {
-        newList[normalizedIngredient] = []
-      }
-      if (measure && !newList[normalizedIngredient].includes(measure)) {
-        newList[normalizedIngredient].push(measure)
-      }
-      // Immediately save to localStorage
-      try {
-        localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(newList))
-      } catch (error) {
-        console.error('Error saving shopping list:', error)
-      }
-      return newList
-    })
-  }
-
-  const removeFromShoppingList = (ingredient) => {
-    const normalizedIngredient = normalizeIngredient(ingredient)
-    setShoppingList(prev => {
-      const newList = { ...prev }
-      delete newList[normalizedIngredient]
-      // Immediately save to localStorage
-      try {
-        localStorage.setItem(SHOPPING_LIST_KEY, JSON.stringify(newList))
-      } catch (error) {
-        console.error('Error saving shopping list:', error)
-      }
-      return newList
-    })
-  }
-
   const value = {
     mealPlan,
+    shoppingList,
     addMealToDay,
     removeMealFromDay,
     getShoppingList,
     clearMealPlan,
     addToShoppingList,
+    addMultipleToShoppingList,
     removeFromShoppingList,
     MEALS,
     DAYS

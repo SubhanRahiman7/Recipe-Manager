@@ -1,26 +1,25 @@
-import { Box, Flex, Link, Heading } from '@chakra-ui/react'
 import { Link as RouterLink } from 'react-router-dom'
 
 const Navbar = () => {
   return (
-    <Box bg="teal.500" px={4} color="white">
-      <Flex h={16} alignItems="center" justifyContent="space-between" maxW="container.xl" mx="auto">
-        <Heading size="md" as={RouterLink} to="/" _hover={{ textDecoration: 'none' }}>
+    <nav className="bg-teal-500 px-4 text-white">
+      <div className="h-16 flex items-center justify-between max-w-7xl mx-auto">
+        <RouterLink to="/" className="text-xl font-bold hover:text-teal-100">
           Recipe Manager
-        </Heading>
-        <Flex gap={6}>
-          <Link as={RouterLink} to="/recipes" _hover={{ textDecoration: 'none', color: 'teal.200' }}>
+        </RouterLink>
+        <div className="flex gap-6">
+          <RouterLink to="/recipes" className="hover:text-teal-100 transition-colors">
             Recipes
-          </Link>
-          <Link as={RouterLink} to="/planner" _hover={{ textDecoration: 'none', color: 'teal.200' }}>
+          </RouterLink>
+          <RouterLink to="/planner" className="hover:text-teal-100 transition-colors">
             Meal Planner
-          </Link>
-          <Link as={RouterLink} to="/shopping-list" _hover={{ textDecoration: 'none', color: 'teal.200' }}>
+          </RouterLink>
+          <RouterLink to="/shopping-list" className="hover:text-teal-100 transition-colors">
             Shopping List
-          </Link>
-        </Flex>
-      </Flex>
-    </Box>
+          </RouterLink>
+        </div>
+      </div>
+    </nav>
   )
 }
 
